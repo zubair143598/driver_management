@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#111827" />
+    <title>Jameela Transport - Fuel Order Manager</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #f3f4f6;
+        color: #111827;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: auto;
+        padding: 14px;
+      }
+
+      .card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        margin: 0 0 4px;
+        font-size: 23px;
+      }
+
+      h2,
+      h3 {
+        margin-top: 0;
+      }
+
+      .muted {
+        color: #6b7280;
+        font-size: 14px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      input,
+      select,
+      button {
+        width: 100%;
+        min-height: 46px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        padding: 10px;
+        font-size: 16px;
+        background: white;
+      }
+
+      button {
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .primary {
+        background: #111827;
+        color: white;
+        border-color: #111827;
+      }
+
+      .danger {
+        color: #b91c1c;
+      }
+
+      .drivers {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+      }
+
+      .driver-button.active {
+        background: #111827;
+        color: white;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+
+      .stat {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 11px;
+      }
+
+      .stat-title {
+        color: #6b7280;
+        font-size: 12px;
+      }
+
+      .stat-value {
+        display: block;
+        font-size: 20px;
+        font-weight: 700;
+        margin-top: 3px;
+      }
+
+      .order {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 12px;
+        margin-top: 9px;
+      }
+
+      .order-title {
+        font-weight: 700;
+      }
+
+      .order-info {
+        color: #4b5563;
+        font-size: 13px;
+        margin-top: 5px;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .message {
+        margin-top: 8px;
+        color: #166534;
+        font-size: 14px;
+      }
+
+      .empty {
+        color: #6b7280;
+        padding: 10px 0;
+      }
+
+      @media (max-width: 520px) {
+        .drivers {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .stats {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- HEADER -->
+      <div class="card">
+        <h1>🚚 Jameela Transport</h1>
+        <div class="muted">Fuel Order Manager</div>
+        <div class="muted">Driver-wise Diesel & Petrol Order System</div>
+      </div>
+
+      <!-- DRIVER SELECTION -->
+      <div class="card">
+        <h3>Select Driver</h3>
+        <div id="drivers" class="drivers"></div>
+      </div>
+
+      <!-- ADD ORDER -->
+      <div class="card">
+        <h3>➕ Add New Order</h3>
+
+        <div class="grid">
+          <input id="company" type="text" placeholder="Company / Customer" />
+
+          <select id="fuel">
+            <option value="Diesel">Diesel</option>
+            <option value="Petrol 91">Petrol 91</option>
+            <option value="Petrol 95">Petrol 95</option>
+          </select>
+
+          <input id="loadDate" type="date" />
+
+          <input id="deliveryDate" type="date" />
+
+          <input
+            id="quantity"
+            type="number"
+            min="0"
+            placeholder="Quantity (Liters)"
+          />
+
+          <input
+            id="destination"
+            type="text"
+            placeholder="Destination / Station"
+          />
+
+          <select id="status">
+            <option value="Pending">Pending</option>
+            <option value="Loading">Loading</option>
+            <option value="Delivered">Delivered</option>
+          </select>
+        </div>
+
+        <br />
+
+        <button id="saveOrder" class="primary">Save Order</button>
+
+        <div id="message" class="message"></div>
+      </div>
+
+      <!-- FILTER -->
+      <div class="card">
+        <h3>🔎 Search / History</h3>
+
+        <div class="grid">
+          <input id="fromDate" type="date" />
+
+          <input id="toDate" type="date" />
+
+          <select id="fuelFilter">
+            <option value="">All Fuel</option>
+            <option value="Diesel">Diesel</option>
+            <option value="Petrol 91">Petrol 91</option>
+            <option value="Petrol 95">Petrol 95</option>
+          </select>
+        </div>
+
+        <br />
+
+        <div class="actions">
+          <button id="september">September 1–30, 2026</button>
+
+          <button id="allDates">All Dates</button>
+        </div>
+      </div>
+
+      <!-- STATISTICS -->
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-title">Orders</span>
+          <span id="totalOrders" class="stat-value">0</span>
+        </div>
+
+        <div class="stat">
+          <span class="stat-title">Diesel L</span>
+          <span id="totalDiesel" class="stat-value">0</span>
+        </div>
+
+        <div class="stat">
+          <span class="stat-title">Petrol L</span>
+          <span id="totalPetrol" class="stat-value">0</span>
+        </div>
+
+        <div class="stat">
+          <span class="stat-title">Delivered</span>
+          <span id="totalDelivered" class="stat-value">0</span>
+        </div>
+      </div>
+
+      <!-- HISTORY -->
+      <div class="card">
+        <h3 id="historyTitle">Driver 1 — Orders</h3>
+
+        <div id="ordersList"></div>
+      </div>
+
+      <!-- DATA TOOLS -->
+      <div class="card">
+        <h3>📁 Data</h3>
+
+        <div class="actions">
+          <button id="exportCSV">Export CSV</button>
+
+          <button id="deleteAll" class="danger">Delete All Data</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* =========================================================
+   STORAGE
+========================================================= */
+
+      const STORAGE_KEY = "JAMEELA_TRANSPORT_FUEL_ORDERS_V1";
+
+      let orders = [];
+
+      try {
+        orders = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      } catch {
+        orders = [];
+      }
+
+      /* =========================================================
+   CURRENT DRIVER
+========================================================= */
+
+      let currentDriver = 1;
+
+      /* =========================================================
+   HELPERS
+========================================================= */
+
+      function $(id) {
+        return document.getElementById(id);
+      }
+
+      function saveData() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+      }
+
+      function escapeHTML(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      /* =========================================================
+   DRIVER BUTTONS
+========================================================= */
+
+      function renderDrivers() {
+        let html = "";
+
+        for (let i = 1; i <= 20; i++) {
+          html += `
+            <button
+                class="driver-button ${i === currentDriver ? "active" : ""}"
+                data-driver="${i}">
+                Driver ${i}
+            </button>
+        `;
+        }
+
+        $("drivers").innerHTML = html;
+
+        document.querySelectorAll(".driver-button").forEach((button) => {
+          button.addEventListener("click", function () {
+            currentDriver = Number(this.dataset.driver);
+
+            renderDrivers();
+            renderOrders();
+          });
+        });
+      }
+
+      /* =========================================================
+   FILTERED ORDERS
+========================================================= */
+
+      function getFilteredOrders() {
+        const from = $("fromDate").value;
+        const to = $("toDate").value;
+        const fuel = $("fuelFilter").value;
+
+        return orders.filter((order) => {
+          if (order.driver !== currentDriver) {
+            return false;
+          }
+
+          if (from && order.loadDate < from) {
+            return false;
+          }
+
+          if (to && order.loadDate > to) {
+            return false;
+          }
+
+          if (fuel && order.fuel !== fuel) {
+            return false;
+          }
+
+          return true;
+        });
+      }
+
+      /* =========================================================
+   RENDER ORDERS
+========================================================= */
+
+      function renderOrders() {
+        const filtered = getFilteredOrders();
+
+        $("historyTitle").textContent =
+          `Driver ${currentDriver} — ${filtered.length} Orders`;
+
+        /* Statistics */
+
+        $("totalOrders").textContent = filtered.length.toLocaleString();
+
+        const diesel = filtered
+          .filter((o) => o.fuel === "Diesel")
+          .reduce((total, o) => total + Number(o.quantity || 0), 0);
+
+        const petrol = filtered
+          .filter((o) => o.fuel.startsWith("Petrol"))
+          .reduce((total, o) => total + Number(o.quantity || 0), 0);
+
+        const delivered = filtered.filter(
+          (o) => o.status === "Delivered",
+        ).length;
+
+        $("totalDiesel").textContent = diesel.toLocaleString();
+
+        $("totalPetrol").textContent = petrol.toLocaleString();
+
+        $("totalDelivered").textContent = delivered.toLocaleString();
+
+        /* Orders */
+
+        if (filtered.length === 0) {
+          $("ordersList").innerHTML = `
+            <div class="empty">
+                No orders found for Driver ${currentDriver}.
+            </div>
+        `;
+
+          return;
+        }
+
+        $("ordersList").innerHTML = filtered
+          .sort((a, b) => a.loadDate.localeCompare(b.loadDate))
+          .map((order) => {
+            return `
+                    <div class="order">
+
+                        <div class="order-title">
+                            ${escapeHTML(order.company)}
+                            — ${escapeHTML(order.fuel)}
+                        </div>
+
+                        <div class="order-info">
+                            📅 Loading:
+                            ${escapeHTML(order.loadDate)}
+                        </div>
+
+                        <div class="order-info">
+                            📅 Delivery:
+                            ${escapeHTML(order.deliveryDate)}
+                        </div>
+
+                        <div class="order-info">
+                            ⛽ Quantity:
+                            ${escapeHTML(order.quantity)}
+                            Liters
+                        </div>
+
+                        <div class="order-info">
+                            📍 Destination:
+                            ${escapeHTML(order.destination || "-")}
+                        </div>
+
+                        <div class="order-info">
+                            Status:
+                            <b>${escapeHTML(order.status)}</b>
+                        </div>
+
+                    </div>
+                `;
+          })
+          .join("");
+      }
+
+      /* =========================================================
+   SAVE NEW ORDER
+========================================================= */
+
+      $("saveOrder").addEventListener("click", function () {
+        const company = $("company").value.trim();
+
+        const fuel = $("fuel").value;
+
+        const loadDate = $("loadDate").value;
+
+        const deliveryDate = $("deliveryDate").value;
+
+        const quantity = $("quantity").value;
+
+        const destination = $("destination").value.trim();
+
+        const status = $("status").value;
+
+        if (!company || !loadDate || !deliveryDate || quantity === "") {
+          $("message").textContent =
+            "Please enter company, dates and quantity.";
+
+          return;
+        }
+
+        const newOrder = {
+          id: Date.now(),
+
+          driver: currentDriver,
+
+          company: company,
+
+          fuel: fuel,
+
+          loadDate: loadDate,
+
+          deliveryDate: deliveryDate,
+
+          quantity: Number(quantity),
+
+          destination: destination,
+
+          status: status,
+        };
+
+        orders.push(newOrder);
+
+        saveData();
+
+        /* Clear form */
+
+        $("company").value = "";
+        $("loadDate").value = "";
+        $("deliveryDate").value = "";
+        $("quantity").value = "";
+        $("destination").value = "";
+
+        $("message").textContent = `Order saved for Driver ${currentDriver}.`;
+
+        renderOrders();
+      });
+
+      /* =========================================================
+   FILTER EVENTS
+========================================================= */
+
+      $("fromDate").addEventListener("change", renderOrders);
+
+      $("toDate").addEventListener("change", renderOrders);
+
+      $("fuelFilter").addEventListener("change", renderOrders);
+
+      /* =========================================================
+   SEPTEMBER FILTER
+========================================================= */
+
+      $("september").addEventListener("click", function () {
+        $("fromDate").value = "2026-09-01";
+
+        $("toDate").value = "2026-09-30";
+
+        renderOrders();
+      });
+
+      /* =========================================================
+   ALL DATES
+========================================================= */
+
+      $("allDates").addEventListener("click", function () {
+        $("fromDate").value = "";
+
+        $("toDate").value = "";
+
+        $("fuelFilter").value = "";
+
+        renderOrders();
+      });
+
+      /* =========================================================
+   EXPORT CSV
+========================================================= */
+
+      $("exportCSV").addEventListener("click", function () {
+        if (orders.length === 0) {
+          alert("There are no orders to export.");
+
+          return;
+        }
+
+        const header = [
+          "Driver",
+          "Company",
+          "Fuel",
+          "Loading Date",
+          "Delivery Date",
+          "Quantity Liters",
+          "Destination",
+          "Status",
+        ];
+
+        const rows = [
+          header,
+
+          ...orders.map((order) => [
+            `Driver ${order.driver}`,
+            order.company,
+            order.fuel,
+            order.loadDate,
+            order.deliveryDate,
+            order.quantity,
+            order.destination,
+            order.status,
+          ]),
+        ];
+
+        const csv = rows
+          .map((row) =>
+            row
+              .map((value) => `"${String(value ?? "").replaceAll('"', '""')}"`)
+              .join(","),
+          )
+          .join("\n");
+
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+
+        link.href = url;
+
+        link.download = "Jameela-Fuel-Orders.csv";
+
+        link.click();
+
+        URL.revokeObjectURL(url);
+      });
+
+      /* =========================================================
+   DELETE ALL
+========================================================= */
+
+      $("deleteAll").addEventListener("click", function () {
+        const yes = confirm("Delete ALL saved orders from this device?");
+
+        if (!yes) {
+          return;
+        }
+
+        orders = [];
+
+        saveData();
+
+        renderOrders();
+
+        alert("All orders deleted.");
+      });
+
+      /* =========================================================
+   START
+========================================================= */
+
+      renderDrivers();
+
+      renderOrders();
+    </script>
+  </body>
+</html>
